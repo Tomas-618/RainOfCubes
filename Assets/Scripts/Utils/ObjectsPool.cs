@@ -6,14 +6,14 @@ namespace Pool
     public class ObjectsPool<T> where T : class
     {
         private readonly Stack<T> _entities;
-        private readonly Func<T> _onCreating;
+        private readonly Func<T> _created;
 
         public ObjectsPool(Func<T> onCreating, in int count)
         {
             if (count < 0)
                 throw new ArgumentOutOfRangeException(count.ToString());
 
-            _onCreating = onCreating ?? throw new ArgumentNullException(nameof(onCreating));
+            _created = onCreating ?? throw new ArgumentNullException(nameof(onCreating));
             _entities = CreateEntities(count);
         }
 
@@ -55,7 +55,7 @@ namespace Pool
             Stack<T> entities = new Stack<T>();
 
             for (int i = 0; i < count; i++)
-                entities.Push(_onCreating.Invoke());
+                entities.Push(_created.Invoke());
 
             return entities;
         }

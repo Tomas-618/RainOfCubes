@@ -415,7 +415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxCount: 10
   _delay: 0.5
-  _entity: {fileID: 8758891855371749274, guid: 4b6b0d48117972940bd04c3e220a8207, type: 3}
+  _entity: {fileID: 6571241675038612792, guid: 4b6b0d48117972940bd04c3e220a8207, type: 3}
   _minPosition: -5
   _maxPosition: 5
   _spawnHeight: 0

@@ -2,28 +2,28 @@ using System.Collections;
 using UnityEngine;
 using Pool;
 
-public class CubesSpawner : MonoBehaviour
+public class Spawner : MonoBehaviour
 {
     [SerializeField, Min(0)] private int _maxCount;
     [SerializeField, Min(0)] private float _delay;
 
-    [SerializeField] private CubeLifeTime _entity;
+    [SerializeField] private LifeTime _entity;
     [SerializeField] private float _minPosition;
     [SerializeField] private float _maxPosition;
     [SerializeField] private float _spawnHeight;
 
     private Transform _transform;
-    private ObjectsPool<CubeLifeTime> _pool;
+    private ObjectsPool<LifeTime> _pool;
 
     private void Reset() =>
         _maxCount = 4;
 
     private void Awake() =>
-        _pool = new ObjectsPool<CubeLifeTime>(() => Instantiate(_entity), _maxCount);
+        _pool = new ObjectsPool<LifeTime>(() => Instantiate(_entity), _maxCount);
 
     private void OnEnable()
     {
-        foreach (CubeLifeTime cube in _pool.Entities)
+        foreach (LifeTime cube in _pool.Entities)
             cube.Died += _pool.PutInEntity;
 
         _pool.PutIn += cube => cube.gameObject.SetActive(false);
@@ -32,7 +32,7 @@ public class CubesSpawner : MonoBehaviour
 
     private void OnDisable()
     {
-        foreach (CubeLifeTime cube in _pool.Entities)
+        foreach (LifeTime cube in _pool.Entities)
             cube.Died -= _pool.PutInEntity;
 
         _pool.PutIn -= cube => cube.gameObject.SetActive(false);
@@ -46,7 +46,7 @@ public class CubesSpawner : MonoBehaviour
         StartCoroutine(SpawnInRandomRange(_delay));
     }
 
-    private void GetFromPool(CubeLifeTime cube)
+    private void GetFromPool(LifeTime cube)
     {
         Vector3 spawnPosition = GetRandomSpawnPosition(_minPosition, _maxPosition, _spawnHeight);
 

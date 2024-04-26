@@ -1,17 +1,16 @@
 using System.Collections;
 using UnityEngine;
 
-public class CubeLifeTime : MonoBehaviour
+public class LifeTime : MonoBehaviour
 {
-    [SerializeField] private RandomColorChanger _colorChanger;
-
     [SerializeField, Min(0)] private float _minValue;
     [SerializeField, Min(0)] private float _maxValue;
 
-    private Coroutine _coroutine;
-    private bool _isHittedOnPlatform;
+    [SerializeField] private Interactable _cube;
 
-    public event System.Action<CubeLifeTime> Died;
+    private Coroutine _coroutine;
+
+    public event System.Action<LifeTime> Died;
 
     private void OnValidate()
     {
@@ -19,21 +18,11 @@ public class CubeLifeTime : MonoBehaviour
             _minValue = _maxValue - 1;
     }
 
+    private void OnEnable() =>
+        _cube.Hitted += StartDieTimer;
+
     private void OnDisable() =>
-        _isHittedOnPlatform = false;
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (_isHittedOnPlatform)
-            return;
-
-        if (collision.transform.GetComponent<Platform>() == false)
-            return;
-
-        _isHittedOnPlatform = true;
-        _colorChanger.Change();
-        StartDieTimer();
-    }
+        _cube.Hitted -= StartDieTimer;
 
     private void StartDieTimer()
     {
