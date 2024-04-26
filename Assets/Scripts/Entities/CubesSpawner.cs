@@ -48,7 +48,6 @@ public class CubesSpawner : MonoBehaviour
 
     private void GetFromPool(CubeLifeTime cube)
     {
-
         Vector3 spawnPosition = GetRandomSpawnPosition(_minPosition, _maxPosition, _spawnHeight);
 
         cube.transform.position = spawnPosition;
