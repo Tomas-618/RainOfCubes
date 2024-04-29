@@ -5,7 +5,7 @@ namespace Pool
 {
     public class ObjectsPool<T> where T : class
     {
-        private readonly Stack<T> _entities;
+        private readonly Queue<T> _entities;
         private readonly Func<T> _created;
 
         public ObjectsPool(Func<T> onCreating, in int count)
@@ -30,17 +30,17 @@ namespace Pool
             if (_entities.Count == 0)
                 return;
 
-            PutOut?.Invoke(_entities.Pop());
+            PutOut?.Invoke(_entities.Dequeue());
         }
 
         public void PutInEntity(T entity)
         {
-            _entities.Push(entity ?? throw new ArgumentNullException(nameof(entity)));
+            _entities.Enqueue(entity ?? throw new ArgumentNullException(nameof(entity)));
             PutIn?.Invoke(entity);
         }
         
         public void RemoveEntity() =>
-            Removed?.Invoke(_entities.Pop());
+            Removed?.Invoke(_entities.Dequeue());
 
         public void Clear()
         {
@@ -50,12 +50,12 @@ namespace Pool
             _entities.Clear();
         }
 
-        private Stack<T> CreateEntities(in int count)
+        private Queue<T> CreateEntities(in int count)
         {
-            Stack<T> entities = new Stack<T>();
+            Queue<T> entities = new Queue<T>();
 
             for (int i = 0; i < count; i++)
-                entities.Push(_created.Invoke());
+                entities.Enqueue(_created.Invoke());
 
             return entities;
         }
