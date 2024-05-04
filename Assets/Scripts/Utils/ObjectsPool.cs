@@ -6,15 +6,13 @@ namespace Pool
     public class ObjectsPool<T> where T : class
     {
         private readonly Queue<T> _entities;
-        private readonly Func<T> _created;
 
-        public ObjectsPool(Func<T> onCreating, in int count)
+        public ObjectsPool(Func<T> created, in int count)
         {
             if (count < 0)
                 throw new ArgumentOutOfRangeException(count.ToString());
 
-            _created = onCreating ?? throw new ArgumentNullException(nameof(onCreating));
-            _entities = CreateEntities(count);
+            _entities = CreateEntities(created ?? throw new ArgumentNullException(nameof(created)), count);
         }
 
         public event Action<T> PutIn;
@@ -54,12 +52,12 @@ namespace Pool
             _entities.Clear();
         }
 
-        private Queue<T> CreateEntities(in int count)
+        private Queue<T> CreateEntities(Func<T> created, in int count)
         {
             Queue<T> entities = new Queue<T>();
 
             for (int i = 0; i < count; i++)
-                entities.Enqueue(_created.Invoke());
+                entities.Enqueue(created.Invoke());
 
             return entities;
         }
