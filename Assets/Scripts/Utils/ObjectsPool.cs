@@ -25,12 +25,16 @@ namespace Pool
 
         public IReadOnlyCollection<T> Entities => _entities;
 
-        public void PutOutEntity()
+        public T PutOutEntity()
         {
             if (_entities.Count == 0)
-                return;
+                return null;
 
-            PutOut?.Invoke(_entities.Dequeue());
+            T entity = _entities.Dequeue();
+
+            PutOut?.Invoke(entity);
+
+            return entity;
         }
 
         public void PutInEntity(T entity)
@@ -38,7 +42,7 @@ namespace Pool
             _entities.Enqueue(entity ?? throw new ArgumentNullException(nameof(entity)));
             PutIn?.Invoke(entity);
         }
-        
+
         public void RemoveEntity() =>
             Removed?.Invoke(_entities.Dequeue());
 
