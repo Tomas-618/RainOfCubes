@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Pool;
 
-public class Spawner : MonoBehaviour
+public class LifeTimersSpawner : MonoBehaviour
 {
     [SerializeField, Min(0)] private int _maxCount;
     [SerializeField, Min(0)] private float _delay;
