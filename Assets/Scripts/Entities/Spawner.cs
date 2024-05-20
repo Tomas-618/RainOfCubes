@@ -7,51 +7,61 @@ public class Spawner : MonoBehaviour
     [SerializeField, Min(0)] private int _maxCount;
     [SerializeField, Min(0)] private float _delay;
 
-    [SerializeField] private LifeTime _entity;
+    [SerializeField] private Fabric<LifeTimer> _fabric;
     [SerializeField] private float _minPosition;
     [SerializeField] private float _maxPosition;
     [SerializeField] private float _spawnHeight;
 
+    private ObjectsPool<LifeTimer> _pool;
     private Transform _transform;
-    private ObjectsPool<LifeTime> _pool;
+    private Coroutine _coroutine;
 
     private void Reset() =>
         _maxCount = 4;
 
-    private void Awake() =>
-        _pool = new ObjectsPool<LifeTime>(() => Instantiate(_entity), _maxCount);
+    private void OnValidate()
+    {
+        if (_minPosition >= _maxPosition)
+            _minPosition = _maxPosition - 1;
+    }
+
+    private void Awake()
+    {
+        _transform = transform;
+        _pool = new ObjectsPool<LifeTimer>(_fabric.Create, _maxCount);
+    }
 
     private void OnEnable()
     {
-        foreach (LifeTime cube in _pool.Entities)
-            cube.Died += _pool.PutInEntity;
+        foreach (LifeTimer entity in _pool.AllEntities)
+            entity.Died += _pool.PutInEntity;
 
-        _pool.PutIn += cube => cube.gameObject.SetActive(false);
+        _pool.PutIn += entity => entity.gameObject.SetActive(false);
         _pool.PutOut += GetFromPool;
+        _pool.Removed += entity => Destroy(entity.gameObject);
+
+        _coroutine = StartCoroutine(SpawnInRandomRange(_delay));
     }
 
     private void OnDisable()
     {
-        foreach (LifeTime cube in _pool.Entities)
-            cube.Died -= _pool.PutInEntity;
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
 
-        _pool.PutIn -= cube => cube.gameObject.SetActive(false);
+        foreach (LifeTimer entity in _pool.AllEntities)
+            entity.Died -= _pool.PutInEntity;
+
+        _pool.PutIn -= entity => entity.gameObject.SetActive(false);
         _pool.PutOut -= GetFromPool;
+        _pool.Removed -= entity => Destroy(entity.gameObject);
     }
 
-    private void Start()
-    {
-        _transform = transform;
-
-        StartCoroutine(SpawnInRandomRange(_delay));
-    }
-
-    private void GetFromPool(LifeTime cube)
+    private void GetFromPool(LifeTimer entity)
     {
         Vector3 spawnPosition = GetRandomSpawnPosition(_minPosition, _maxPosition, _spawnHeight);
 
-        cube.transform.position = spawnPosition;
-        cube.gameObject.SetActive(true);
+        entity.transform.position = spawnPosition;
+        entity.gameObject.SetActive(true);
     }
 
     private Vector3 GetRandomSpawnPosition(in float minPosition, in float maxPosition, in float spawnHeight)

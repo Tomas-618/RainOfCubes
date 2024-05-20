@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class Interactable : MonoBehaviour
+public abstract class CollisionChecker<T> : MonoBehaviour where T : MonoBehaviour
 {
     private bool _isHitted;
 
@@ -15,7 +15,7 @@ public class Interactable : MonoBehaviour
         if (_isHitted)
             return;
 
-        if (collision.transform.GetComponent<Platform>() == false)
+        if (collision.transform.GetComponent<T>() == false)
             return;
 
         _isHitted = true;

@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pool
 {
     public class ObjectsPool<T> where T : class
     {
-        private readonly Queue<T> _entities;
+        private readonly List<T> _storedEntities;
+
+        private List<T> _allEnteties;
 
         public ObjectsPool(Func<T> created, in int count)
         {
             if (count < 0)
                 throw new ArgumentOutOfRangeException(count.ToString());
 
-            _entities = CreateEntities(created ?? throw new ArgumentNullException(nameof(created)), count);
+            _storedEntities = CreateEntities(created ?? throw new ArgumentNullException(nameof(created)), count);
+            _allEnteties = _storedEntities
+                .ToList();
         }
 
         public event Action<T> PutIn;
@@ -21,15 +26,19 @@ namespace Pool
 
         public event Action<T> Removed;
 
-        public IReadOnlyCollection<T> Entities => _entities;
+        public IReadOnlyCollection<T> AllEntities => _allEnteties;
+
+        public IReadOnlyCollection<T> StoredEntities => _storedEntities;
 
         public T PutOutEntity()
         {
-            if (_entities.Count == 0)
+            if (_storedEntities.Count == 0)
                 return null;
 
-            T entity = _entities.Dequeue();
+            T entity = _storedEntities
+                .First();
 
+            _storedEntities.Remove(entity);
             PutOut?.Invoke(entity);
 
             return entity;
@@ -37,27 +46,65 @@ namespace Pool
 
         public void PutInEntity(T entity)
         {
-            _entities.Enqueue(entity ?? throw new ArgumentNullException(nameof(entity)));
+            _storedEntities.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
             PutIn?.Invoke(entity);
         }
 
-        public void RemoveEntity() =>
-            Removed?.Invoke(_entities.Dequeue());
-
-        public void Clear()
+        public void RemoveStoredEntity()
         {
-            foreach (T entity in _entities)
-                Removed?.Invoke(entity);
+            T entity = _storedEntities
+                .First();
 
-            _entities.Clear();
+            _storedEntities.Remove(entity);
+            _allEnteties.Remove(entity);
+            Removed?.Invoke(entity);
         }
 
-        private Queue<T> CreateEntities(Func<T> created, in int count)
+        public void RemoveEntity()
         {
-            Queue<T> entities = new Queue<T>();
+            T entity = _allEnteties
+                .First();
+
+            if (_storedEntities.Contains(entity))
+                _storedEntities.Remove(entity);
+
+            _allEnteties.Remove(entity);
+            Removed?.Invoke(entity);
+        }
+
+        public void ClearStoredEntities()
+        {
+            if (_storedEntities.Count == 0)
+                return;
+
+            foreach (T entity in _storedEntities)
+                Removed?.Invoke(entity);
+
+            _allEnteties = _allEnteties
+                .Except(_storedEntities)
+                .ToList();
+
+            _storedEntities.Clear();
+        }
+
+        public void ClearAllEntities()
+        {
+            if (_allEnteties.Count == 0)
+                return;
+
+            foreach (T entity in _allEnteties)
+                Removed?.Invoke(entity);
+
+            _storedEntities.Clear();
+            _allEnteties.Clear();
+        }
+
+        private List<T> CreateEntities(Func<T> created, in int count)
+        {
+            List<T> entities = new List<T>();
 
             for (int i = 0; i < count; i++)
-                entities.Enqueue(created.Invoke());
+                entities.Add(created.Invoke());
 
             return entities;
         }

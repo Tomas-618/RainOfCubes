@@ -3,7 +3,7 @@
 [RequireComponent(typeof(MeshRenderer))]
 public class RandomColorChanger : MonoBehaviour
 {
-    [SerializeField] private Interactable _cube;
+    [SerializeField] private CollisionChecker<Platform> _collisionChecker;
 
     private MeshRenderer _meshRenderer;
 
@@ -11,14 +11,14 @@ public class RandomColorChanger : MonoBehaviour
         _meshRenderer = GetComponent<MeshRenderer>();
 
     private void OnEnable() =>
-        _cube.Hitted += Change;
+        _collisionChecker.Hitted += Change;
 
     private void OnDisable()
     {
-        _cube.Hitted -= Change;
+        _collisionChecker.Hitted -= Change;
         _meshRenderer.material.color = Color.white;
     }
 
     private void Change() =>
-        _meshRenderer.material.color = RandomUtils.GetRandomColor();
+        _meshRenderer.material.color = Random.ColorHSV();
 }
