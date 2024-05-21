@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class LifeTimer : MonoBehaviour
+public class LifeTimer : MonoBehaviour, IReadOnlyLifeTimerEvents
 {
     [SerializeField, Min(0)] private float _minDuration;
     [SerializeField, Min(0)] private float _maxDuration;

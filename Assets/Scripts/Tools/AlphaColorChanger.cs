@@ -1,32 +1,44 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshRenderer))]
-public class AlphaColorChanger : MonoBehaviour
+public class AlphaColorChanger : MonoBehaviour, IReadOnlyAlphaColorChangerEvents
 {
     [SerializeField, Range(0, 1)] private float _deltaChanging;
 
     private MeshRenderer _meshRenderer;
+    private Coroutine _coroutine;
+    private Color _initial;
+
+    public event Action SetToZero;
 
     private void Reset() =>
         _deltaChanging = 0.01f;
 
-    private void Awake() =>
-        _meshRenderer = GetComponent<MeshRenderer>();
-
-    private void OnEnable()
+    private void Awake()
     {
-        ChangeToZero();
+        _meshRenderer = GetComponent<MeshRenderer>();
+        _initial = _meshRenderer.material.color;
     }
+
+    private void OnEnable() =>
+        ChangeToZero();
 
     private void OnDisable()
     {
-        
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
+
+        _meshRenderer.material.color = _initial;
     }
 
     private void ChangeToZero()
     {
-        StartCoroutine(ProcessChangingColor(Color.clear));
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
+
+        _coroutine = StartCoroutine(ProcessChangingColor(Color.clear));
     }
 
     private IEnumerator ProcessChangingColor(Color desired)
@@ -42,5 +54,7 @@ public class AlphaColorChanger : MonoBehaviour
 
             yield return null;
         }
+
+        SetToZero?.Invoke();
     }
 }

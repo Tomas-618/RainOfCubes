@@ -1,8 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Pool;
 
-public class LifeTimersSpawner : MonoBehaviour
+public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimerSpawner
 {
     [SerializeField, Min(0)] private int _maxCount;
     [SerializeField, Min(0)] private float _delay;
@@ -15,6 +16,8 @@ public class LifeTimersSpawner : MonoBehaviour
     private ObjectsPool<LifeTimer> _pool;
     private Transform _transform;
     private Coroutine _coroutine;
+
+    public IReadOnlyCollection<IReadOnlyLifeTimerEvents> AllEntitiesEvents { get; private set; }
 
     private void Reset() =>
         _maxCount = 4;
@@ -29,11 +32,12 @@ public class LifeTimersSpawner : MonoBehaviour
     {
         _transform = transform;
         _pool = new ObjectsPool<LifeTimer>(_fabric.Create, _maxCount);
+        AllEntitiesEvents = _pool.AllEntities;
     }
 
     private void OnEnable()
     {
-        foreach (LifeTimer entity in _pool.AllEntities)
+        foreach (IReadOnlyLifeTimerEvents entity in AllEntitiesEvents)
             entity.Died += _pool.PutInEntity;
 
         _pool.PutIn += entity => entity.gameObject.SetActive(false);
@@ -48,7 +52,7 @@ public class LifeTimersSpawner : MonoBehaviour
         if (_coroutine != null)
             StopCoroutine(_coroutine);
 
-        foreach (LifeTimer entity in _pool.AllEntities)
+        foreach (IReadOnlyLifeTimerEvents entity in AllEntitiesEvents)
             entity.Died -= _pool.PutInEntity;
 
         _pool.PutIn -= entity => entity.gameObject.SetActive(false);
