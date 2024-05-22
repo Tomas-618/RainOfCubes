@@ -1,9 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Pool;
 
-public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimerSpawner
+public class LifeTimersSpawner : MonoBehaviour
 {
     [SerializeField, Min(0)] private int _maxCount;
     [SerializeField, Min(0)] private float _delay;
@@ -16,8 +15,6 @@ public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimerSpawner
     private ObjectsPool<LifeTimer> _pool;
     private Transform _transform;
     private Coroutine _coroutine;
-
-    public IReadOnlyCollection<IReadOnlyLifeTimerEvents> AllEntitiesEvents { get; private set; }
 
     private void Reset() =>
         _maxCount = 4;
@@ -32,16 +29,15 @@ public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimerSpawner
     {
         _transform = transform;
         _pool = new ObjectsPool<LifeTimer>(_fabric.Create, _maxCount);
-        AllEntitiesEvents = _pool.AllEntities;
     }
 
     private void OnEnable()
     {
-        foreach (IReadOnlyLifeTimerEvents entity in AllEntitiesEvents)
+        foreach (IReadOnlyLifeTimerEvents entity in _pool.AllEntities)
             entity.Died += _pool.PutInEntity;
 
         _pool.PutIn += entity => entity.gameObject.SetActive(false);
-        _pool.PutOut += GetFromPool;
+        _pool.PutOut += PutOutFromPool;
         _pool.Removed += entity => Destroy(entity.gameObject);
 
         _coroutine = StartCoroutine(SpawnInRandomRange(_delay));
@@ -52,15 +48,15 @@ public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimerSpawner
         if (_coroutine != null)
             StopCoroutine(_coroutine);
 
-        foreach (IReadOnlyLifeTimerEvents entity in AllEntitiesEvents)
+        foreach (IReadOnlyLifeTimerEvents entity in _pool.AllEntities)
             entity.Died -= _pool.PutInEntity;
 
         _pool.PutIn -= entity => entity.gameObject.SetActive(false);
-        _pool.PutOut -= GetFromPool;
+        _pool.PutOut -= PutOutFromPool;
         _pool.Removed -= entity => Destroy(entity.gameObject);
     }
 
-    private void GetFromPool(LifeTimer entity)
+    private void PutOutFromPool(LifeTimer entity)
     {
         Vector3 spawnPosition = GetRandomSpawnPosition(_minPosition, _maxPosition, _spawnHeight);
 

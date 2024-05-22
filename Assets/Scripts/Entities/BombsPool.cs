@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
-using AYellowpaper;
 using Pool;
 
-public class BombsSpawner : MonoBehaviour
+public class BombsPool : MonoBehaviour, ICanOnlyPutOutInPosition
 {
     [SerializeField, Min(0)] private int _maxCount;
 
-    [SerializeField] private InterfaceReference<IReadOnlyLifeTimerSpawner, MonoBehaviour> _lifeTimersSpawner;
     [SerializeField] private Fabric<Bomb> _fabric;
 
     private ObjectsPool<Bomb> _pool;
@@ -16,9 +14,6 @@ public class BombsSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        foreach (IReadOnlyLifeTimerEvents lifeTimerEvents in _lifeTimersSpawner.Value.AllEntitiesEvents)
-            lifeTimerEvents.Died += GetFromPool;
-
         foreach (Bomb entity in _pool.AllEntities)
             entity.Exploded += _pool.PutInEntity;
 
@@ -29,9 +24,6 @@ public class BombsSpawner : MonoBehaviour
 
     private void OnDisable()
     {
-        foreach (IReadOnlyLifeTimerEvents lifeTimerEvents in _lifeTimersSpawner.Value.AllEntitiesEvents)
-            lifeTimerEvents.Died -= GetFromPool;
-
         foreach (Bomb entity in _pool.AllEntities)
             entity.Exploded -= _pool.PutInEntity;
 
@@ -40,13 +32,13 @@ public class BombsSpawner : MonoBehaviour
         _pool.Removed -= entity => Destroy(entity.gameObject);
     }
 
-    private void GetFromPool(LifeTimer timer)
+    public void PutOutInPosition(in Vector3 point)
     {
         Bomb bomb = _pool.PutOutEntity();
 
         if (bomb == null)
             return;
 
-        bomb.transform.position = timer.transform.position;
+        bomb.transform.position = point;
     }
 }

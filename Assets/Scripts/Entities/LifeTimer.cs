@@ -1,11 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using AYellowpaper;
 
-public class LifeTimer : MonoBehaviour, IReadOnlyLifeTimerEvents
+public class LifeTimer : MonoBehaviour, IReadOnlyLifeTimerEvents, IInitializable<ICanOnlyPutOutInPosition>
 {
     [SerializeField, Min(0)] private float _minDuration;
     [SerializeField, Min(0)] private float _maxDuration;
 
+    [SerializeField] private InterfaceReference<IInitializable<ICanOnlyPutOutInPosition>, MonoBehaviour> _dieEventHandler;
     [SerializeField] private CollisionChecker<Platform> _collisionChecker;
 
     private Coroutine _coroutine;
@@ -23,6 +25,9 @@ public class LifeTimer : MonoBehaviour, IReadOnlyLifeTimerEvents
 
     private void OnDisable() =>
         _collisionChecker.Hitted -= StartCountdown;
+
+    public void Init(ICanOnlyPutOutInPosition value) =>
+        _dieEventHandler.Value.Init(value);
 
     private void StartCountdown()
     {
