@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Pool;
 
-public class LifeTimersSpawner : MonoBehaviour
+public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimerSpawnerEvents
 {
     [SerializeField, Min(0)] private int _maxCount;
     [SerializeField, Min(0)] private float _delay;
@@ -15,6 +15,10 @@ public class LifeTimersSpawner : MonoBehaviour
     private ObjectsPool<LifeTimer> _pool;
     private Transform _transform;
     private Coroutine _coroutine;
+
+    public event System.Action Spawned;
+
+    public event System.Action Dispawned;
 
     private void Reset() =>
         _maxCount = 4;
@@ -36,9 +40,9 @@ public class LifeTimersSpawner : MonoBehaviour
         foreach (IReadOnlyLifeTimerEvents entity in _pool.AllEntities)
             entity.Died += _pool.PutInEntity;
 
-        _pool.PutIn += entity => entity.gameObject.SetActive(false);
+        _pool.PutIn += PutInPool;
         _pool.PutOut += PutOutFromPool;
-        _pool.Removed += entity => Destroy(entity.gameObject);
+        _pool.Removed += RemoveInPool;
 
         _coroutine = StartCoroutine(SpawnInRandomRange(_delay));
     }
@@ -51,9 +55,15 @@ public class LifeTimersSpawner : MonoBehaviour
         foreach (IReadOnlyLifeTimerEvents entity in _pool.AllEntities)
             entity.Died -= _pool.PutInEntity;
 
-        _pool.PutIn -= entity => entity.gameObject.SetActive(false);
+        _pool.PutIn -= PutInPool;
         _pool.PutOut -= PutOutFromPool;
-        _pool.Removed -= entity => Destroy(entity.gameObject);
+        _pool.Removed -= RemoveInPool;
+    }
+
+    private void PutInPool(LifeTimer entity)
+    {
+        entity.gameObject.SetActive(false);
+        Dispawned?.Invoke();
     }
 
     private void PutOutFromPool(LifeTimer entity)
@@ -62,7 +72,11 @@ public class LifeTimersSpawner : MonoBehaviour
 
         entity.transform.position = spawnPosition;
         entity.gameObject.SetActive(true);
+        Spawned?.Invoke();
     }
+
+    private void RemoveInPool(LifeTimer entity) =>
+        Destroy(entity.gameObject);
 
     private Vector3 GetRandomSpawnPosition(in float minPosition, in float maxPosition, in float spawnHeight)
     {

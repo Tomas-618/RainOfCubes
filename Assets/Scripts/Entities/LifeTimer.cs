@@ -7,7 +7,7 @@ public class LifeTimer : MonoBehaviour, IReadOnlyLifeTimerEvents, IInitializable
     [SerializeField, Min(0)] private float _minDuration;
     [SerializeField, Min(0)] private float _maxDuration;
 
-    [SerializeField] private InterfaceReference<IInitializable<ICanOnlyPutOutInPosition>, MonoBehaviour> _dieEventHandler;
+    [SerializeField] private InterfaceReference<ICanOnlyInitializeLifeTimerDieEventsHandler, MonoBehaviour> _dieEventHandler;
     [SerializeField] private CollisionChecker<Platform> _collisionChecker;
 
     private Coroutine _coroutine;

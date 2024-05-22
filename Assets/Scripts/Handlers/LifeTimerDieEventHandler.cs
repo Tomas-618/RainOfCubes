@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class LifeTimerDieEventHandler : MonoBehaviour, IInitializable<ICanOnlyPutOutInPosition>
+public class LifeTimerDieEventHandler : MonoBehaviour, ICanOnlyInitializeLifeTimerDieEventsHandler
 {
     [SerializeField] private LifeTimerEventsMediator _mediator;
 
