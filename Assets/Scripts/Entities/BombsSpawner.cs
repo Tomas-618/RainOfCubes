@@ -49,6 +49,4 @@ public class BombsSpawner : MonoBehaviour
 
         bomb.transform.position = timer.transform.position;
     }
-
-    private void D() { }
 }
