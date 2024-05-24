@@ -2636,7 +2636,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b10e57996e0cb8a4bb6fc6c9d8098d87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxCount: 20
+  _maxCount: 10
   _fabric: {fileID: 866562823}
 --- !u!1 &1427971058
 GameObject:
@@ -3105,7 +3105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae23a8931bb23a428ab5e12906836bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxCount: 10
+  _maxCount: 20
   _delay: 0.5
   _fabric: {fileID: 673834696}
   _minPosition: -5
@@ -3157,7 +3157,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2042743902
 Transform:
   m_ObjectHideFlags: 0

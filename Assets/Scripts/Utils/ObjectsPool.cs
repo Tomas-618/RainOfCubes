@@ -59,6 +59,9 @@ namespace Pool
 
         public void PutInAllUnstoredEntities()
         {
+            if (NonstoredEntities.Count == 0)
+                return;
+
             foreach (T entity in NonstoredEntities)
                 PutInEntity(entity);
         }
