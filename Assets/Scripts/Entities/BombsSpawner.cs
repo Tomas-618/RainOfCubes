@@ -41,7 +41,7 @@ public class BombsSpawner : MonoBehaviour, ICanOnlyPutOutInPosition, IReadOnlyBo
     {
         Bomb bomb = _pool.PutOutEntity();
 
-        if (bomb == null)
+        if (bomb == false)
             return;
 
         bomb.transform.position = point;
