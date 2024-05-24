@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2425550951505521997}
   - component: {fileID: 5433302159724764017}
   - component: {fileID: 8850559548192064057}
+  - component: {fileID: 7352906601401325147}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Untagged
@@ -35,7 +36,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6788712955415163976
 MeshFilter:
@@ -164,3 +165,15 @@ MonoBehaviour:
   _radius: 15
   _alphaColorChangerEvents:
     _underlyingValue: {fileID: 5433302159724764017}
+--- !u!114 &7352906601401325147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7574898094064844171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad999f686656e9d4887d04b2196defcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
