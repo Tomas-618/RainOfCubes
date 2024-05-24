@@ -30,6 +30,10 @@ namespace Pool
 
         public IReadOnlyCollection<T> StoredEntities => _storedEntities;
 
+        public IReadOnlyCollection<T> NonstoredEntities => _allEnteties
+            .Except(_storedEntities)
+            .ToList();
+
         public T PutOutEntity()
         {
             if (_storedEntities.Count == 0)
@@ -46,8 +50,17 @@ namespace Pool
 
         public void PutInEntity(T entity)
         {
+            if (_allEnteties.Contains(entity) == false)
+                throw new ArgumentException(nameof(entity));
+
             _storedEntities.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
             PutIn?.Invoke(entity);
+        }
+
+        public void PutInAllUnstoredEntities()
+        {
+            foreach (T entity in NonstoredEntities)
+                PutInEntity(entity);
         }
 
         public void RemoveStoredEntity()
@@ -80,8 +93,7 @@ namespace Pool
             foreach (T entity in _storedEntities)
                 Removed?.Invoke(entity);
 
-            _allEnteties = _allEnteties
-                .Except(_storedEntities)
+            _allEnteties = NonstoredEntities
                 .ToList();
 
             _storedEntities.Clear();

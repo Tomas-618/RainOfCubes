@@ -52,6 +52,8 @@ public class LifeTimersSpawner : MonoBehaviour, IReadOnlyLifeTimersSpawnerEvents
         if (_coroutine != null)
             StopCoroutine(_coroutine);
 
+        _pool.PutInAllUnstoredEntities();
+
         foreach (IReadOnlyLifeTimerEvents entity in _pool.AllEntities)
             entity.Died -= _pool.PutInEntity;
 

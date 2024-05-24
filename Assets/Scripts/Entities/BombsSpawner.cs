@@ -29,6 +29,8 @@ public class BombsSpawner : MonoBehaviour, ICanOnlyPutOutInPosition, IReadOnlyBo
 
     private void OnDisable()
     {
+        _pool.PutInAllUnstoredEntities();
+
         foreach (Bomb entity in _pool.AllEntities)
             entity.Exploded -= _pool.PutInEntity;
 
